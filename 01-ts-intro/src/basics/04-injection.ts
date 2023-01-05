@@ -1,6 +1,6 @@
 // import axios from 'axios';
 import { Move, PokeApiResponse } from '../interfaces/pokeapi-response.interface';
-import { PokeApiAdapter } from '../api/pokeApi.adapter';
+import { PokeApiAdapter, PokeApiFetchAdapter, HttpAdapter } from '../api/pokeApi.adapter';
 
 export class Pokemon {
 
@@ -12,7 +12,7 @@ export class Pokemon {
         public readonly id: number,
         public name: string,
         // To do: Inject dependencies
-        private readonly http: PokeApiAdapter
+        private readonly http: HttpAdapter
     ) { }
 
     scream() {
@@ -30,16 +30,20 @@ export class Pokemon {
     //     return data.moves;
     // }
 
-    async getMoves() {
-        const data = await this.http.get('https://pokeapi.co/api/v2/pokemon/4');
+    async getMoves(): Promise<Move[]> {
+        const data = await this.http.get<PokeApiResponse>('https://pokeapi.co/api/v2/pokemon/4');
         console.log(data.moves);
         return data.moves;
     }
 
 }
 
-const pokeApi = new PokeApiAdapter();
+// SOLID: Liskov
+const pokeApiAxios = new PokeApiAdapter();
+const pokeApiFetch = new PokeApiFetchAdapter();
 
-export const charmander = new Pokemon(4, 'Charmander', pokeApi);
+export const charmander = new Pokemon(4, 'Charmander', pokeApiFetch);
+export const charmander2 = new Pokemon(4, 'Charmander', pokeApiAxios);
 
 charmander.getMoves();
+charmander2.getMoves();
